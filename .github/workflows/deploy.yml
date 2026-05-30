@@ -26,23 +26,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Deploy via rsync over SSH
+        uses: burnett01/rsync-deployments@6.0.0
         with:
-          host: 46.202.186.67
-          port: 65002
-          username: u212110799
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: |
-            rm -rf ~/public_html/*
-
-      - name: Copy files via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 46.202.186.67
-          port: 65002
-          username: u212110799
-          password: ${{ secrets.SSH_PASSWORD }}
-          source: "dist/*"
-          target: "~/public_html/"
-          strip_components: 1
+          switches: -avzr --delete
+          path: dist/
+          remote_path: /home/u212110799/public_html/
+          remote_host: 46.202.186.67
+          remote_port: 65002
+          remote_user: u212110799
+          remote_password: ${{ secrets.SSH_PASSWORD }}
