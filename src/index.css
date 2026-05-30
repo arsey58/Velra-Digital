@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-bebas: "Bebas Neue", sans-serif;
+}
+
+/* Custom global styles for scroll behavior and custom scrollbar */
+html {
+  scroll-behavior: smooth;
+  background-color: #0B0816; /* Deep rich transparent purple-tinted night sky */
+  color: #E8E8F0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0B0816;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(123, 94, 248, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(123, 94, 248, 0.5);
+}
+
+/* Cosmic purple neon glowing borders and lights */
+.primary-glow {
+  box-shadow: 0 0 50px -10px rgba(123, 94, 248, 0.45);
+}
+
+.primary-glow-hover:hover {
+  box-shadow: 0 0 30px 2px rgba(123, 94, 248, 0.6);
+  border-color: rgba(123, 94, 248, 0.8) !important;
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px -2px rgba(0, 245, 200, 0.4);
+}
+
+.neon-glow-hover:hover {
+  box-shadow: 0 0 30px 0px rgba(0, 245, 200, 0.75);
+}
+
+/* Glassmorphism class exactly as specified with dynamic transparent purple tint */
+.velra-glass-card {
+  background: rgba(22, 16, 47, 0.4); /* Highly premium transparent deep purple tint */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(123, 94, 248, 0.15); /* Soft glowing purple border */
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(5, 3, 15, 0.5);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.velra-glass-card:hover {
+  background: rgba(22, 16, 47, 0.5);
+  border-color: rgba(123, 94, 248, 0.3);
+  box-shadow: 0 20px 50px rgba(123, 94, 248, 0.15);
+}
+
+/* Hide leaflet control panel backgrounds or customize leaflet style to match transparent purple theme */
+.leaflet-container {
+  background: #0B0816 !important;
+  border-radius: 16px;
+  border: 1px solid rgba(123, 94, 248, 0.2) !important;
+}
+.leaflet-bar a {
+  background-color: rgba(22, 16, 47, 0.8) !important;
+  backdrop-filter: blur(8px);
+  color: #E8E8F0 !important;
+  border-bottom: 1px solid rgba(123, 94, 248, 0.15) !important;
+}
+.leaflet-bar a:hover {
+  background-color: rgba(123, 94, 248, 0.4) !important;
+  color: #00F5C8 !important;
+}
+.leaflet-popup-content-wrapper {
+  background: rgba(22, 16, 47, 0.95) !important;
+  backdrop-filter: blur(12px);
+  color: #E8E8F0 !important;
+  border: 1px solid rgba(123, 94, 248, 0.25) !important;
+  border-radius: 16px !important;
+}
+.leaflet-popup-tip {
+  background: rgba(22, 16, 47, 0.95) !important;
+}
