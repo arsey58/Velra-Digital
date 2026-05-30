@@ -31,4 +31,4 @@ jobs:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
         run: |
           sudo apt-get install -y sshpass rsync
-          sshpass -p "$SSH_PASS" rsync -avzr --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no" dist/ u212110799@46.202.186.67:/home/u212110799/public_html/
+          sshpass -p "$SSH_PASS" rsync -avzr --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no" dist/ u212110799@46.202.186.67:public_html/
