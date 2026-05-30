@@ -44,4 +44,5 @@ jobs:
           username: u212110799
           password: ${{ secrets.SSH_PASSWORD }}
           source: "dist/*"
-          target: "~/public_h
+          target: "~/public_html/"
+          strip_components: 1
