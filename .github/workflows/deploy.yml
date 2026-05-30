@@ -26,13 +26,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy via rsync over SSH
-        uses: burnett01/rsync-deployments@6.0.0
-        with:
-          switches: -avzr --delete
-          path: dist/
-          remote_path: /home/u212110799/public_html/
-          remote_host: 46.202.186.67
-          remote_port: 65002
-          remote_user: u212110799
-          remote_password: ${{ secrets.SSH_PASSWORD }}
+      - name: Deploy via SSH sshpass
+        env:
+          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sudo apt-get install -y sshpass rsync
+          sshpass -p "$SSH_PASS" rsync -avzr --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no" dist/ u212110799@46.202.186.67:/home/u212110799/public_html/
