@@ -26,13 +26,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Zip dist
-        run: zip -r dist.zip dist/
-
       - name: Deploy via SSH
         env:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
         run: |
           sudo apt-get install -y sshpass
-          sshpass -p "$SSH_PASS" scp -P 65002 -o StrictHostKeyChecking=no dist.zip u212110799@46.202.186.67:~/
-          sshpass -p "$SSH_PASS" ssh -p 65002 -o StrictHostKeyChecking=no u212110799@46.202.186.67 "rm -rf ~/public_html/* && unzip -o ~/dist.zip -d ~/ && cp -r ~/dist/* ~/public_html/ && rm -rf ~/dist ~/dist.zip"
+          cd dist
+          tar -czf ../deploy.tar.gz .
+          cd ..
+          sshpass -p "$SSH_PASS" scp -P 65002 -o StrictHostKeyChecking=no deploy.tar.gz u212110799@46.202.186.67:~/
+          sshpass -p "$SSH_PASS" ssh -p 65002 -o StrictHostKeyChecking=no u212110799@46.202.186.67 "rm -rf ~/public_html/* && tar -xzf ~/deploy.tar.gz -C ~/public_html/ && rm ~/deploy.tar.gz"
