@@ -42,9 +42,24 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
           transition={{ duration: 0.9, cubicBezier: [0.16, 1, 0.3, 1] }}
           className="font-bebas text-white leading-none tracking-wider select-none text-center flex flex-col"
         >
-          <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent filter drop-shadow-[0_2px_24px_rgba(123,94,248,0.25)] leading-none select-none uppercase">
-            VELRA
-          </span>
+          <span className="relative inline-flex items-end leading-none">
+  <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent leading-none uppercase">
+    VELR
+  </span>
+  <span className="relative inline-block">
+    <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent leading-none uppercase">
+      A
+    </span>
+    <motion.span
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8], y: [10, 0, 0, -10] }}
+      transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
+      className="absolute inset-0 flex items-center justify-center text-[1rem] sm:text-[1.4rem] md:text-[1.8rem] font-mono font-bold tracking-[0.2em] text-[#00D4AA] uppercase"
+    >
+      DIGITAL
+    </motion.span>
+  </span>
+</span>
         </motion.h1>
 
         {/* Elegant Subheadline */}
