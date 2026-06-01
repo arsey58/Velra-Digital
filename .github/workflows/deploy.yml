@@ -1,4 +1,4 @@
-name: Deploy to Hostinger
+name: Build and Deploy
 
 on:
   push:
@@ -26,13 +26,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy via SSH
-        env:
-          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
-        run: |
-          sudo apt-get install -y sshpass
-          cd dist
-          tar -czf ../deploy.tar.gz .
-          cd ..
-          sshpass -p "$SSH_PASS" scp -P 65002 -o StrictHostKeyChecking=no deploy.tar.gz u212110799@46.202.186.67:~/
-          sshpass -p "$SSH_PASS" ssh -p 65002 -o StrictHostKeyChecking=no u212110799@46.202.186.67 "rm -rf ~/public_html/* && tar -xzf ~/deploy.tar.gz -C ~/public_html/ && rm ~/deploy.tar.gz"
+      - name: Deploy dist to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
