@@ -54,7 +54,7 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8], y: [10, 0, 0, -10] }}
       transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
-      className="absolute inset-0 flex items-center justify-center text-[1rem] sm:text-[1.4rem] md:text-[1.8rem] font-mono font-bold tracking-[0.2em] text-[#00D4AA] uppercase"
+      className="absolute bottom-0 right-0 translate-x-1/2 text-[1rem] sm:text-[1.4rem] md:text-[1.8rem] font-bold tracking-[0.1em] text-[#00D4AA]" style={{fontFamily: 'Caveat, cursive'}}
     >
       DIGITAL
     </motion.span>
