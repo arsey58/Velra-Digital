@@ -50,14 +50,15 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
     <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent leading-none uppercase">
       A
     </span>
-    <motion.span
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8], y: [10, 0, 0, -10] }}
-      transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
-      className="absolute bottom-0 right-0 translate-x-1/2 text-[1rem] sm:text-[1.4rem] md:text-[1.8rem] font-bold tracking-[0.1em] text-[#00D4AA]" style={{fontFamily: 'Caveat, cursive'}}
-    >
-      DIGITAL
-    </motion.span>
+   <motion.span
+  initial={{ opacity: 0, width: 0 }}
+  animate={{ opacity: [0, 1, 1, 0], width: ["0%", "100%", "100%", "0%"] }}
+  transition={{ duration: 4, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }}
+  className="absolute bottom-0 right-0 translate-x-[60%] overflow-hidden whitespace-nowrap text-[1rem] sm:text-[1.4rem] md:text-[1.8rem] font-bold tracking-[0.1em] text-[#00D4AA]"
+  style={{ fontFamily: 'Caveat, cursive' }}
+>
+  digital
+</motion.span>
   </span>
 </span>
         </motion.h1>
