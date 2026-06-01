@@ -43,9 +43,9 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
           className="font-bebas text-white leading-none tracking-wider select-none text-center flex flex-col"
         >
           <span className="relative inline-flex items-end leading-none">
-  <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent leading-none uppercase">
-    VELR
-  </span>
+ <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent filter drop-shadow-[0_2px_24px_rgba(123,94,248,0.25)] leading-none select-none uppercase">
+  VELRA
+</span>
   <span className="relative inline-block">
     <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent leading-none uppercase">
       A
