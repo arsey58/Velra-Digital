@@ -119,7 +119,7 @@ export default function Contact({ selectedPlan }: ContactProps) {
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-white text-base">Email Relations</h4>
-                  <p className="text-sm text-[#A5A5C7] mt-0.5 font-sans font-light">team@govelra.com · hr@govelra.com</p>
+                  <p className="text-sm text-[#A5A5C7] mt-0.5 font-sans font-light">team@govelra.com · HR@govelra.com</p>
                 </div>
               </div>
 
