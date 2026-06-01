@@ -55,7 +55,7 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
           className="mt-6 text-base sm:text-lg md:text-xl text-neutral-300 max-w-2xl leading-relaxed text-center font-sans font-light tracking-wide"
         >
           Powering dominant digital presence for premium brands —{' '}
-          <span className="text-white font-semibold">Web, Google Business Maps, and Strategic Paid Channels.</span>
+          <span className="text-white font-semibold">Seamlessly fusing Web Development, Social Marketing, and instant WhatsApp & Google Maps connectivity into one powerhouse strategy.</span>
         </motion.p>
 
         {/* Remapped CTAs with Luxury Purple and Teal Accents */}
