@@ -54,7 +54,7 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
           transition={{ duration: 0.8, delay: 0.35 }}
           className="mt-6 text-base sm:text-lg md:text-xl text-neutral-300 max-w-2xl leading-relaxed text-center font-sans font-light tracking-wide"
         >
-          Powering dominant digital presence for premium brands —{' '}
+          Powering dominant digital presence —{' '}
           <span className="text-white font-semibold">Seamlessly fusing Web Development, Social Marketing, and instant WhatsApp & Google Maps connectivity into one powerhouse strategy.</span>
         </motion.p>
 
