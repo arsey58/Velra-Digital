@@ -42,25 +42,9 @@ export default function Hero({ onGetStarted, onSeeHowWeWork }: HeroProps) {
           transition={{ duration: 0.9, cubicBezier: [0.16, 1, 0.3, 1] }}
           className="font-bebas text-white leading-none tracking-wider select-none text-center flex flex-col"
         >
-          <span className="relative inline-flex items-end leading-none">
- <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent filter drop-shadow-[0_2px_24px_rgba(123,94,248,0.25)] leading-none select-none uppercase">
-  VELRA
-</span>
-  <span className="relative inline-block">
-    <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent leading-none uppercase">
-      A
-    </span>
-   <motion.span
-  initial={{ opacity: 0, width: 0 }}
-  animate={{ opacity: [0, 1, 1, 0], width: ["0%", "100%", "100%", "0%"] }}
-  transition={{ duration: 4, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }}
-  className="absolute bottom-0 right-0 translate-x-[60%] overflow-hidden whitespace-nowrap text-[1rem] sm:text-[1.4rem] md:text-[1.8rem] font-bold tracking-[0.1em] text-[#00D4AA]"
-  style={{ fontFamily: 'Caveat, cursive' }}
->
-  digital
-</motion.span>
-  </span>
-</span>
+          <span className="text-[6rem] sm:text-[9rem] md:text-[11rem] lg:text-[13rem] xl:text-[16rem] font-bold bg-gradient-to-r from-[#7B6CF6] via-[#4d94ff] to-[#00D4AA] bg-clip-text text-transparent filter drop-shadow-[0_2px_24px_rgba(123,94,248,0.25)] leading-none select-none uppercase">
+            VELRA
+          </span>
         </motion.h1>
 
         {/* Elegant Subheadline */}
