@@ -120,10 +120,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
                 window.scrollTo({ top: 0 });
               }}
               title="Admin Portal"
-              className={`p-2 rounded-lg border transition-all duration-200 cursor-pointer ${
-                currentView === 'admin'
-                  'bg-[rgba(22,16,47,0.4)] border-[rgba(123,94,248,0.2)] text-[#7070A0] hover:text-[#E8E8F0] hover:border-[#7B5EF8]/50'
-              }`}
+              className="p-2 rounded-lg border transition-all duration-200 cursor-pointer bg-[rgba(22,16,47,0.4)] border-[rgba(123,94,248,0.2)] text-[#7070A0] hover:text-[#E8E8F0] hover:border-[#7B5EF8]/50"
             >
               <ShieldAlert className="w-4 h-4" />
             </button>
@@ -136,7 +133,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
                 onNavigate('admin');
                 window.scrollTo({ top: 0 });
               }}
-              'bg-[rgba(22,16,47,0.4)] border-[rgba(123,94,248,0.2)] text-[#7070A0] hover:text-[#E8E8F0] hover:border-[#7B5EF8]/50'
+              className="p-2 text-[#7070A0] hover:text-[#E8E8F0] border border-[rgba(123,94,248,0.2)] rounded-lg bg-[rgba(22,16,47,0.4)]"
             >
               <ShieldAlert className="w-4 h-4" />
             </button>
