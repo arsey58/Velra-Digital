@@ -66,9 +66,14 @@ export default function App() {
 
   // Callback to support choosing a price tier and auto scrolling down to populate the contact selection dropdown!
   const handleSelectPlan = (planName: string) => {
-    setSelectedPlanForContact(planName);
-    window.location.hash = '#contact';
-  };
+  setSelectedPlanForContact(planName);
+  setCurrentView('public');
+  window.location.hash = '#contact';
+  setTimeout(() => {
+    const el = document.getElementById('contact');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 300);
+};
 
   return (
     <div className="min-h-screen bg-[#0B0816] text-[#E8E8F0] font-sans flex flex-col justify-between selection:bg-[#7B5EF8]/35 selection:text-white relative">
