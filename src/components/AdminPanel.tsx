@@ -45,8 +45,8 @@ export default function AdminPanel() {
     e.preventDefault();
     setLoginError('');
 
-    const validEmails = ['admin@velradigital.com', 'bdm1@velradigital.com', 'bdm2@velradigital.com'];
-    const validPassword = 'Velra@2025';
+    const validEmails = ['team@govelra.com'];
+const validPassword = 'Velra@12345';
 
     const normalizedEmail = emailInput.trim().toLowerCase();
 
@@ -258,7 +258,7 @@ export default function AdminPanel() {
                   onChange={(e) => setEmailInput(e.target.value)}
                   className="w-full px-4 py-3 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white placeholder-[#7070A0]/40 text-sm focus:border-[#7B5EF8] focus:outline-none focus:ring-1 focus:ring-[#7B5EF8]/20"
                 />
-                <p className="text-[10px] text-[#9090C0]/50">Allowed: admin@velradigital.com, bdm1@velradigital.com, bdm2@velradigital.com</p>
+                <p className="text-[10px] text-[#9090C0]/50">Authorized personnel only</p>
               </div>
 
               {/* Password */}
@@ -285,7 +285,7 @@ export default function AdminPanel() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-[10px] text-[#9090C0]/50 font-mono">Allowed: Velra@2025</p>
+                <p className="text-[10px] text-[#9090C0]/50 font-mono">Authorized personnel only</p>
               </div>
 
               {/* Submit Access button */}
