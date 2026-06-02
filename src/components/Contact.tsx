@@ -4,7 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, CheckCircle, Clock, Send } from 'lucide-react';
+import { Mail, MapPin, CheckCircle, Clock, Send } from 'lucide-react';
+
+const SUPABASE_URL = 'https://qxqrlvzzfisvlzhyqems.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4cXJsdnp6Zmlzdmx6aHlxZW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTY2NDUsImV4cCI6MjA5NTk3MjY0NX0.bM2B3JtzcjR5RVihk3wIilbAxdtDucasWrcmpSOZ_2k';
 
 interface ContactProps {
   selectedPlan: string;
@@ -17,12 +20,12 @@ export default function Contact({ selectedPlan }: ContactProps) {
     phone: '',
     serviceInterest: 'Growth Package (PKR 15K-20K)',
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  // Sync service interest dynamically if a pricing plan is chosen by the user in the parent applet
- useEffect(() => {
+  useEffect(() => {
     if (selectedPlan.toLowerCase() === 'starter') {
       setFormData((prev) => ({ ...prev, serviceInterest: 'Starter Package (PKR 5K-8K)' }));
     } else if (selectedPlan.toLowerCase() === 'standard') {
@@ -32,25 +35,40 @@ export default function Contact({ selectedPlan }: ContactProps) {
     }
   }, [selectedPlan]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.businessName || !formData.phone) return;
 
     setIsSubmitting(true);
-    
-    // Simulate API pipeline submit
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      
-      // Save submission locally for simulation visual or debugging
-      const submissions = JSON.parse(localStorage.getItem('velra_submissions') || '[]');
-      submissions.push({
-        ...formData,
-        timestamp: new Date().toISOString(),
+    setSubmitError('');
+
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/inquiries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          business_name: formData.businessName,
+          phone: '+92' + formData.phone,
+          service_interest: formData.serviceInterest,
+        }),
       });
-      localStorage.setItem('velra_submissions', JSON.stringify(submissions));
-    }, 1200);
+
+      if (!response.ok) {
+        throw new Error('Submission failed');
+      }
+
+      setIsSuccess(true);
+    } catch (err) {
+      setSubmitError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -61,17 +79,17 @@ export default function Contact({ selectedPlan }: ContactProps) {
       serviceInterest: 'Growth Package (PKR 15K-20K)',
     });
     setIsSuccess(false);
+    setSubmitError('');
   };
 
   return (
     <section id="contact" className="relative py-24 sm:py-32 px-4 sm:px-6 lg:px-8 bg-transparent">
-      {/* Absolute background visual blobs */}
       <div className="absolute bottom-0 left-10 w-[400px] h-[400px] bg-[#7B5EF8] opacity-[0.08] blur-[130px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-stretch">
-          
-          {/* Left panel: Info & Karachi Focus */}
+
+          {/* Left panel */}
           <div className="flex flex-col justify-between">
             <div>
               <span className="text-sm font-bold text-[#00F5C8] uppercase tracking-wider font-mono">
@@ -85,10 +103,7 @@ export default function Contact({ selectedPlan }: ContactProps) {
               </p>
             </div>
 
-            {/* Local Information Cards */}
             <div className="mt-12 space-y-6">
-              
-              {/* Location Widget */}
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-[#0B0816] border border-[rgba(123,94,248,0.2)] flex items-center justify-center shrink-0 shadow-md">
                   <MapPin className="w-5 h-5 text-[#7B5EF8]" />
@@ -99,7 +114,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                 </div>
               </div>
 
-              {/* Response Time Widget */}
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-[#0B0816] border border-[rgba(123,94,248,0.2)] flex items-center justify-center shrink-0 shadow-md">
                   <Clock className="w-5 h-5 text-[#00F5C8]" />
@@ -110,7 +124,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                 </div>
               </div>
 
-              {/* Direct Mail Widget */}
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-[#0B0816] border border-[rgba(123,94,248,0.2)] flex items-center justify-center shrink-0 shadow-md">
                   <Mail className="w-5 h-5 text-pink-500" />
@@ -120,10 +133,8 @@ export default function Contact({ selectedPlan }: ContactProps) {
                   <p className="text-sm text-[#A5A5C7] mt-0.5 font-sans font-light">Team@govelra.com · HR@govelra.com</p>
                 </div>
               </div>
-
             </div>
 
-            {/* Small Footer Signature Note inside left panel */}
             <div className="mt-12 border-t border-[rgba(123,94,248,0.2)] pt-6 hidden lg:block">
               <span className="text-xs text-[#9090C0]/60 font-mono">
                 Velra Digital (Private) Ltd. · Karachi Registration Authority 081290
@@ -131,22 +142,23 @@ export default function Contact({ selectedPlan }: ContactProps) {
             </div>
           </div>
 
-          {/* Right panel: Glassmorphism Contact Form Card as explicitly specified */}
+          {/* Right panel */}
           <div className="velra-glass-card p-8 sm:p-10 relative overflow-hidden flex flex-col justify-center">
-            
-            {/* Corner glowing overlay */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#7B5EF8]/20 rounded-full blur-2xl pointer-events-none" />
 
             {!isSuccess ? (
               <form onSubmit={handleSubmit} className="space-y-6 relative z-10 bg-transparent">
-                
-                {/* Form Title */}
                 <div>
                   <h3 className="text-2xl font-display font-extrabold text-white">Inquire Right Now</h3>
                   <p className="text-xs text-[#9090C0] mt-1">Fill the details below to initialize verification.</p>
                 </div>
 
-                {/* Input Name */}
+                {submitError && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+                    {submitError}
+                  </div>
+                )}
+
                 <div className="space-y-2 bg-transparent">
                   <label htmlFor="name-input" className="block text-xs font-bold text-[#E8E8F0] uppercase tracking-wider font-mono">
                     Your Name
@@ -162,7 +174,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                   />
                 </div>
 
-                {/* Input Business Name */}
                 <div className="space-y-2 bg-transparent">
                   <label htmlFor="business-input" className="block text-xs font-bold text-[#E8E8F0] uppercase tracking-wider font-mono">
                     Business Name
@@ -178,7 +189,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                   />
                 </div>
 
-                {/* Input Phone */}
                 <div className="space-y-2 bg-transparent">
                   <label htmlFor="phone-input" className="block text-xs font-bold text-[#E8E8F0] uppercase tracking-wider font-mono flex items-center justify-between">
                     <span>Phone / WhatsApp</span>
@@ -195,7 +205,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                       placeholder="300 1234567"
                       value={formData.phone}
                       onChange={(e) => {
-                        // strip any non-digit character to sanitize phone input
                         const val = e.target.value.replace(/\D/g, '');
                         setFormData({ ...formData, phone: val });
                       }}
@@ -205,7 +214,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                   <p className="text-[10px] text-[#9090C0]/70 mt-1">We require a valid Whatsapp number to establish contact and drop catalog designs.</p>
                 </div>
 
-                {/* Service Dropdown Selection */}
                 <div className="space-y-2">
                   <label htmlFor="service-select" className="block text-xs font-bold text-[#E8E8F0] uppercase tracking-wider font-mono">
                     Service Interest
@@ -223,7 +231,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                   </select>
                 </div>
 
-                {/* Submit Trigger with neon glow hover */}
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -243,7 +250,6 @@ export default function Contact({ selectedPlan }: ContactProps) {
                 </button>
               </form>
             ) : (
-              /* Success micro iteration display screen */
               <div className="text-center py-8 px-4 flex flex-col items-center justify-center relative z-10 animate-scaleUp bg-transparent">
                 <div className="w-16 h-16 rounded-full bg-[#00F5C8]/10 border border-[#00F5C8]/40 flex items-center justify-center text-[#00F5C8] mb-6">
                   <CheckCircle className="w-10 h-10" />
@@ -252,13 +258,12 @@ export default function Contact({ selectedPlan }: ContactProps) {
                 <p className="text-sm text-[#9090C0] mt-3 leading-relaxed max-w-sm">
                   Salam, <span className="text-[#E8E8F0] font-bold">{formData.name}</span>. We successfully cataloged your request for <span className="text-[#00F5C8] font-bold">{formData.businessName}</span>.
                 </p>
-                <div className="mt-6 p-4 rounded-xl bg-[#0B0816] border border-[rgba(123,94,248,0.2)] text-xs text-[#9090C0] max-w-sm text-left family-sans space-y-1.5 shadow-inner">
+                <div className="mt-6 p-4 rounded-xl bg-[#0B0816] border border-[rgba(123,94,248,0.2)] text-xs text-[#9090C0] max-w-sm text-left space-y-1.5 shadow-inner">
                   <span className="font-bold text-[#E8E8F0] uppercase tracking-wide block mb-1 font-mono">Queue Status: Active</span>
                   <p>● assigned BDM: <span className="text-[#7B5EF8] font-medium">Pakistani-Support-Desk</span></p>
                   <p>● callback window: <span className="text-[#00F5C8] font-medium">Under 2 hours</span></p>
                   <p>● channel: <span className="text-[#E8E8F0] font-medium">Direct WhatsApp (+92 {formData.phone})</span></p>
                 </div>
-                
                 <button
                   onClick={handleReset}
                   className="mt-8 text-xs font-mono font-bold text-[#9090C0] hover:text-[#00F5C8] transition-colors border-b border-transparent hover:border-[#00F5C8] cursor-pointer"
