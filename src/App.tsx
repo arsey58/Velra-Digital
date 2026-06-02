@@ -69,12 +69,9 @@ export default function App() {
   setSelectedPlanForContact(planName);
   setCurrentView('public');
   setTimeout(() => {
-    window.location.hash = '#contact';
-    setTimeout(() => {
-      const el = document.getElementById('contact');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 400);
-  }, 100);
+    const el = document.getElementById('contact');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 500);
 };
 
   return (

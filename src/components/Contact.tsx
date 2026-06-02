@@ -23,14 +23,13 @@ export default function Contact({ selectedPlan }: ContactProps) {
 
   // Sync service interest dynamically if a pricing plan is chosen by the user in the parent applet
   useEffect(() => {
-    if (selectedPlan) {
-      if (selectedPlan.toLowerCase() === 'starter') {
-        setFormData((prev) => ({ ...prev, serviceInterest: 'Starter Package (PKR 5K-8K)' }));
-      } else if (selectedPlan.toLowerCase() === 'growth') {
-        setFormData((prev) => ({ ...prev, serviceInterest: 'Growth Package (PKR 15K-20K)' }));
-      } else if (selectedPlan.toLowerCase() === 'pro') {
-        setFormData((prev) => ({ ...prev, serviceInterest: 'Pro Package (PKR 30K-40K)' }));
-      }
+    if (selectedPlan.toLowerCase() === 'starter') {
+  setFormData((prev) => ({ ...prev, serviceInterest: 'Starter Package (PKR 5K-8K)' }));
+} else if (selectedPlan.toLowerCase() === 'standard') {
+  setFormData((prev) => ({ ...prev, serviceInterest: 'Growth Package (PKR 15K-20K)' }));
+} else if (selectedPlan.toLowerCase() === 'premium') {
+  setFormData((prev) => ({ ...prev, serviceInterest: 'Pro Package (PKR 30K-40K)' }));
+}
     }
   }, [selectedPlan]);
 
