@@ -68,11 +68,13 @@ export default function App() {
   const handleSelectPlan = (planName: string) => {
   setSelectedPlanForContact(planName);
   setCurrentView('public');
-  window.location.hash = '#contact';
   setTimeout(() => {
-    const el = document.getElementById('contact');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 300);
+    window.location.hash = '#contact';
+    setTimeout(() => {
+      const el = document.getElementById('contact');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
+  }, 100);
 };
 
   return (
