@@ -15,6 +15,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Monitor scrolling for glassmorphic effect
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Scroll spy — track which section is in view
+  // Scroll spy
   useEffect(() => {
     if (currentView !== 'public') return;
 
@@ -33,6 +34,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isNavigating) return;
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setActiveSection(entry.target.id);
@@ -48,7 +50,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
     });
 
     return () => observer.disconnect();
-  }, [currentView]);
+  }, [currentView, isNavigating]);
 
   const navLinks = [
     { key: 'home', label: 'Home', isSegment: true },
@@ -63,12 +65,16 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
     setIsOpen(false);
     if (isSegment) {
       if (currentView !== 'public') {
+        setIsNavigating(true);
+        setActiveSection(key);
         onNavigate('public');
         setTimeout(() => {
           const element = document.getElementById(key);
           if (element) element.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => setIsNavigating(false), 600);
         }, 450);
       } else {
+        setActiveSection(key);
         const element = document.getElementById(key);
         if (element) element.scrollIntoView({ behavior: 'smooth' });
       }
@@ -96,6 +102,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+
           {/* Logo */}
           <div
             onClick={() => handleLinkClick('home', true)}
@@ -130,7 +137,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
             })}
           </div>
 
-          {/* Admin Button */}
+          {/* Admin Button Desktop */}
           <div className="hidden md:flex items-center">
             <button
               onClick={() => {
