@@ -12,7 +12,6 @@ import { Lead, LeadCategory } from '../types';
 const SUPABASE_URL = 'https://qxqrlvzzfisvlzhyqems.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4cXJsdnp6Zmlzdmx6aHlxZW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTY2NDUsImV4cCI6MjA5NTk3MjY0NX0.bM2B3JtzcjR5RVihk3wIilbAxdtDucasWrcmpSOZ_2k';
 
-// Fix Leaflet default icon paths
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -29,11 +28,6 @@ interface Theme {
   thumbnail_url: string;
   created_at: string;
 }
-
-const CREDENTIALS = {
-  admin: { email: 'team@govelra.com', password: 'Velra@12345', role: 'admin' },
-  bdm: { email: 'bdm@govelra.com', password: 'Business@12345', role: 'bdm' },
-};
 
 export default function AdminPanel() {
   // Auth
@@ -53,7 +47,7 @@ export default function AdminPanel() {
   const [webhookStatus, setWebhookStatus] = useState<'idle' | 'success' | 'failed'>('idle');
   const [webhookMessage, setWebhookMessage] = useState('');
 
-  // BDM / Themes states
+  // Theme states
   const [themes, setThemes] = useState<Theme[]>([]);
   const [themesLoading, setThemesLoading] = useState(false);
   const [previewTheme, setPreviewTheme] = useState<Theme | null>(null);
@@ -72,14 +66,15 @@ export default function AdminPanel() {
     e.preventDefault();
     setLoginError('');
     const normalized = emailInput.trim().toLowerCase();
+    const pwd = passwordInput.trim();
 
-    if (normalized === CREDENTIALS.admin.email && passwordInput === CREDENTIALS.admin.password) {
+    if (normalized === 'team@govelra.com' && pwd === 'Velra@12345') {
       setIsLoggedIn(true);
       setCurrentUser(normalized);
       setUserRole('admin');
       localStorage.setItem('velra_admin_auth', normalized);
       localStorage.setItem('velra_admin_role', 'admin');
-    } else if (normalized === CREDENTIALS.bdm.email && passwordInput === CREDENTIALS.bdm.password) {
+    } else if (normalized === 'bdm@govelra.com' && pwd === 'Business@12345') {
       setIsLoggedIn(true);
       setCurrentUser(normalized);
       setUserRole('bdm');
@@ -237,35 +232,33 @@ export default function AdminPanel() {
 
   // ==================== RENDER ====================
 
-  // Fullscreen preview modal
-  if (previewTheme) {
-    return (
-      <div className="fixed inset-0 z-[999] bg-[#0B0816] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)]">
-          <div className="flex items-center gap-3">
-            <Layout className="w-4 h-4 text-[#7B5EF8]" />
-            <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
-            <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
-          </div>
-          <button
-            onClick={() => setPreviewTheme(null)}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#E8E8F0] border border-[rgba(123,94,248,0.2)] rounded-xl bg-[rgba(22,16,47,0.5)] hover:border-[#7B5EF8] transition-all cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" /> Close Preview
-          </button>
-        </div>
-        <iframe
-          src={previewTheme.preview_url}
-          className="flex-1 w-full border-0"
-          title={previewTheme.name}
-          sandbox="allow-scripts allow-same-origin"
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#0B0816] text-[#E8E8F0] pt-28 pb-16 px-4 sm:px-6 lg:px-8">
+
+      {/* Fullscreen Preview Modal */}
+      {previewTheme && (
+        <div className="fixed inset-0 z-[9999] bg-[#0B0816] flex flex-col">
+          <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)] shrink-0">
+            <div className="flex items-center gap-3">
+              <Layout className="w-4 h-4 text-[#7B5EF8]" />
+              <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
+              <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
+            </div>
+            <button
+              onClick={() => setPreviewTheme(null)}
+              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#E8E8F0] border border-[rgba(123,94,248,0.2)] rounded-xl bg-[rgba(22,16,47,0.5)] hover:bg-[#7B5EF8] hover:border-[#7B5EF8] transition-all cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" /> Close Preview
+            </button>
+          </div>
+          <iframe
+            src={previewTheme.preview_url}
+            className="flex-1 w-full border-0"
+            title={previewTheme.name}
+            sandbox="allow-scripts allow-same-origin allow-forms"
+          />
+        </div>
+      )}
 
       {/* ========== LOGIN ========== */}
       {!isLoggedIn ? (
@@ -340,9 +333,7 @@ export default function AdminPanel() {
                   userRole === 'admin'
                     ? 'bg-[#7B5EF8]/10 text-[#7B5EF8] border-[#7B5EF8]/30'
                     : 'bg-[#00F5C8]/10 text-[#00F5C8] border-[#00F5C8]/30'
-                }`}>
-                  {userRole}
-                </span>
+                }`}>{userRole}</span>
               </div>
               <h2 className="text-2xl font-display font-extrabold text-white mt-1">
                 {userRole === 'admin' ? 'Lead Prospecting Center' : 'Website Specimen Gallery'}
@@ -463,6 +454,7 @@ export default function AdminPanel() {
                 </div>
               </div>
 
+              {/* Results Table */}
               <div className="velra-glass-card p-6 overflow-hidden">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
                   <div>
@@ -521,7 +513,7 @@ export default function AdminPanel() {
                 )}
               </div>
 
-              {/* Admin also sees themes with add/delete */}
+              {/* Theme Manager */}
               <div className="velra-glass-card p-6">
                 <div className="flex justify-between items-center mb-6">
                   <div>
@@ -611,7 +603,7 @@ export default function AdminPanel() {
               <div className="text-center max-w-2xl mx-auto">
                 <span className="text-sm font-bold text-[#00F5C8] uppercase tracking-wider font-mono">Website Specimens</span>
                 <h3 className="mt-2 text-3xl font-display font-extrabold text-white">Client Pitch Gallery</h3>
-                <p className="mt-2 text-sm text-[#9090C0]">Select a specimen to preview in fullscreen and pitch to your client.</p>
+                <p className="mt-2 text-sm text-[#9090C0]">Select a specimen to preview fullscreen and pitch to your client.</p>
               </div>
 
               {themesLoading ? (
@@ -619,7 +611,8 @@ export default function AdminPanel() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {themes.map((theme) => (
-                    <div key={theme.id} className="border border-[rgba(123,94,248,0.2)] rounded-2xl overflow-hidden bg-[rgba(22,16,47,0.3)] hover:border-[#7B5EF8]/60 hover:shadow-[0_12px_40px_rgba(123,94,248,0.2)] transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
+                    <div key={theme.id}
+                      className="border border-[rgba(123,94,248,0.2)] rounded-2xl overflow-hidden bg-[rgba(22,16,47,0.3)] hover:border-[#7B5EF8]/60 hover:shadow-[0_12px_40px_rgba(123,94,248,0.2)] transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
                       onClick={() => setPreviewTheme(theme)}>
                       <div className="relative overflow-hidden">
                         <img src={theme.thumbnail_url} alt={theme.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
