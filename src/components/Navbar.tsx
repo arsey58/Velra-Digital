@@ -14,19 +14,41 @@ interface NavbarProps {
 export default function Navbar({ currentView, onNavigate }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
-  // Monitor scrolling to make the navbar slightly glassmorphic upon scroll
+  // Monitor scrolling for glassmorphic effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Scroll spy — track which section is in view
+  useEffect(() => {
+    if (currentView !== 'public') return;
+
+    const sections = ['home', 'how-we-work', 'services', 'contact'];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [currentView]);
 
   const navLinks = [
     { key: 'home', label: 'Home', isSegment: true },
@@ -42,23 +64,25 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
     if (isSegment) {
       if (currentView !== 'public') {
         onNavigate('public');
-        // Wait minor delay for render to finish before scrolling
         setTimeout(() => {
           const element = document.getElementById(key);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
+          if (element) element.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } else {
         const element = document.getElementById(key);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
       onNavigate(key);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const isLinkActive = (key: string) => {
+    if (key === 'ai-students') return currentView === 'ai-students';
+    if (key === 'pricing') return currentView === 'pricing';
+    if (currentView === 'public') return activeSection === key;
+    return false;
   };
 
   return (
@@ -72,29 +96,23 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo Brand Mark */}
-          <div 
+          {/* Logo */}
+          <div
             onClick={() => handleLinkClick('home', true)}
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
-            {/* Round square logo mark exactly as instructed */}
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7B6CF6] to-[#00D4AA] flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-105">
               <span className="text-white text-2xl font-black font-display antialiased">V</span>
             </div>
-            {/* Wordmark exactly as instructed */}
             <span className="text-white font-display font-extrabold text-xl tracking-tight select-none">
               Velra <span className="text-white font-light">Digital</span>
             </span>
           </div>
 
-          {/* Desktop Nav Items */}
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
-              const isActive = 
-                (link.key === 'ai-students' && currentView === 'ai-students') ||
-                (link.key === 'pricing' && currentView === 'pricing') ||
-                (link.key === 'home' && currentView === 'public'); // approximate visual anchor matches
-              
+              const isActive = isLinkActive(link.key);
               return (
                 <button
                   key={link.key}
@@ -112,7 +130,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
             })}
           </div>
 
-          {/* Hidden Admin Entry Link */}
+          {/* Admin Button */}
           <div className="hidden md:flex items-center">
             <button
               onClick={() => {
@@ -120,17 +138,17 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
                 window.scrollTo({ top: 0 });
               }}
               title="Admin Portal"
-             className={`p-2 rounded-lg border transition-all duration-200 cursor-pointer ${
-  currentView === 'admin'
-    ? 'bg-[rgba(22,16,47,0.4)] border-[#00F5C8] text-[#00F5C8]'
-    : 'bg-[rgba(22,16,47,0.4)] border-[rgba(123,94,248,0.2)] text-[#7070A0] hover:text-[#E8E8F0] hover:border-[#7B5EF8]/50'
-}`}
+              className={`p-2 rounded-lg border transition-all duration-200 cursor-pointer ${
+                currentView === 'admin'
+                  ? 'bg-[rgba(22,16,47,0.4)] border-[#00F5C8] text-[#00F5C8]'
+                  : 'bg-[rgba(22,16,47,0.4)] border-[rgba(123,94,248,0.2)] text-[#7070A0] hover:text-[#E8E8F0] hover:border-[#7B5EF8]/50'
+              }`}
             >
               <ShieldAlert className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Buttons */}
           <div className="md:hidden flex items-center gap-2">
             <button
               onClick={() => {
@@ -155,10 +173,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
       {isOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-[#0B0816ed] backdrop-blur-lg border-b border-[rgba(123,94,248,0.2)] py-4 px-6 shadow-xl flex flex-col gap-4 animate-fadeIn">
           {navLinks.map((link) => {
-            const isActive =
-              (link.key === 'ai-students' && currentView === 'ai-students') ||
-              (link.key === 'pricing' && currentView === 'pricing') ||
-              (link.key === 'home' && currentView === 'public');
+            const isActive = isLinkActive(link.key);
             return (
               <button
                 key={link.key}
