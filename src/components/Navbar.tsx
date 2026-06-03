@@ -67,7 +67,7 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
         setTimeout(() => {
           const element = document.getElementById(key);
           if (element) element.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        }, 450);
       } else {
         const element = document.getElementById(key);
         if (element) element.scrollIntoView({ behavior: 'smooth' });
