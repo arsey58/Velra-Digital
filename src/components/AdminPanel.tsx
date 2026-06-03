@@ -4,11 +4,10 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Shield, Key, Eye, EyeOff, LogOut, MapPin, Database, Send, AlertCircle, Star, Globe, Trash2, Plus, X, Layout } from 'lucide-react';
+import { Shield, Key, Eye, EyeOff, LogOut, MapPin, Database, Send, AlertCircle, Star, Globe, Trash2, Plus } from 'lucide-react';
 import L from 'leaflet';
 import { generateMockLeads } from '../data/mockLeads';
 import { Lead, LeadCategory } from '../types';
-import { createPortal } from 'react-dom';
 
 const SUPABASE_URL = 'https://qxqrlvzzfisvlzhyqems.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4cXJsdnp6Zmlzdmx6aHlxZW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTY2NDUsImV4cCI6MjA5NTk3MjY0NX0.bM2B3JtzcjR5RVihk3wIilbAxdtDucasWrcmpSOZ_2k';
@@ -30,7 +29,11 @@ interface Theme {
   created_at: string;
 }
 
-export default function AdminPanel() {
+interface AdminPanelProps {
+  onPreviewChange: (active: boolean) => void;
+}
+
+export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
   // Auth
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
@@ -61,6 +64,17 @@ export default function AdminPanel() {
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const circleRef = useRef<L.Circle | null>(null);
+
+  // Preview helpers
+  const openPreview = (theme: Theme) => {
+    setPreviewTheme(theme);
+    onPreviewChange(true);
+  };
+
+  const closePreview = () => {
+    setPreviewTheme(null);
+    onPreviewChange(false);
+  };
 
   // --- AUTH ---
   const handleLoginSubmit = (e: React.FormEvent) => {
@@ -94,13 +108,12 @@ export default function AdminPanel() {
     setPasswordInput('');
     setSearchResults([]);
     setWebhookStatus('idle');
-    setPreviewTheme(null);
+    closePreview();
     localStorage.removeItem('velra_admin_auth');
     localStorage.removeItem('velra_admin_role');
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
   };
 
-  // Restore session
   useEffect(() => {
     const savedAuth = localStorage.getItem('velra_admin_auth');
     const savedRole = localStorage.getItem('velra_admin_role');
@@ -236,30 +249,28 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-[#0B0816] text-[#E8E8F0] pt-28 pb-16 px-4 sm:px-6 lg:px-8">
 
-      {/* Fullscreen Preview Modal */}
+      {/* Fullscreen Preview */}
       {previewTheme && (
-  <div className="fixed inset-0 z-[9999] bg-[#0B0816] flex flex-col">
-    <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)] shrink-0">
-      <div className="flex items-center gap-3">
-        <Layout className="w-4 h-4 text-[#7B5EF8]" />
-        <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
-        <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
-      </div>
-      <button
-        onClick={() => setPreviewTheme(null)}
-        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#E8E8F0] border border-[rgba(123,94,248,0.2)] rounded-xl bg-[rgba(22,16,47,0.5)] hover:bg-[#7B5EF8] hover:border-[#7B5EF8] transition-all cursor-pointer"
-      >
-        <X className="w-3.5 h-3.5" /> Close Preview
-      </button>
-    </div>
-    <iframe
-      src={previewTheme.preview_url}
-      className="flex-1 w-full border-0"
-      title={previewTheme.name}
-      sandbox="allow-scripts allow-same-origin allow-forms"
-    />
-  </div>
-)}
+        <div className="fixed inset-0 z-[9999] bg-[#0B0816] flex flex-col">
+          <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)] shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
+              <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
+            </div>
+            <button
+              onClick={closePreview}
+              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white border border-[rgba(123,94,248,0.3)] rounded-xl bg-[rgba(123,94,248,0.2)] hover:bg-[#7B5EF8] transition-all cursor-pointer"
+            >
+              ✕ Close Preview
+            </button>
+          </div>
+          <iframe
+            src={previewTheme.preview_url}
+            className="flex-1 w-full border-0"
+            title={previewTheme.name}
+          />
+        </div>
+      )}
 
       {/* ========== LOGIN ========== */}
       {!isLoggedIn ? (
@@ -557,7 +568,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="flex gap-3">
                       <button type="submit" disabled={addingTheme}
-                        className="px-4 py-2 text-xs font-bold text-white bg-[#7B5EF8] hover:bg-[#8B70FA] rounded-xl flex items-center gap-2 cursor-pointer transition-all">
+                        className="px-4 py-2 text-xs font-bold text-white bg-[#7B5EF8] hover:bg-[#8B70FA] rounded-xl cursor-pointer transition-all">
                         {addingTheme ? 'Saving...' : 'Save Theme'}
                       </button>
                       <button type="button" onClick={() => setShowAddForm(false)}
@@ -586,7 +597,7 @@ export default function AdminPanel() {
                           <span className="text-[10px] text-[#00F5C8] font-mono border border-[#00F5C8]/30 px-2 py-0.5 rounded-full">{theme.category}</span>
                         </div>
                         <p className="text-xs text-[#9090C0] leading-relaxed">{theme.description}</p>
-                        <button onClick={() => setPreviewTheme(theme)}
+                        <button onClick={() => openPreview(theme)}
                           className="w-full py-2 mt-1 text-xs font-bold text-white bg-[#7B5EF8]/20 hover:bg-[#7B5EF8]/40 border border-[#7B5EF8]/30 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer">
                           <Globe className="w-3.5 h-3.5" /> Preview Site
                         </button>
@@ -614,7 +625,7 @@ export default function AdminPanel() {
                   {themes.map((theme) => (
                     <div key={theme.id}
                       className="border border-[rgba(123,94,248,0.2)] rounded-2xl overflow-hidden bg-[rgba(22,16,47,0.3)] hover:border-[#7B5EF8]/60 hover:shadow-[0_12px_40px_rgba(123,94,248,0.2)] transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
-                      onClick={() => setPreviewTheme(theme)}>
+                      onClick={() => openPreview(theme)}>
                       <div className="relative overflow-hidden">
                         <img src={theme.thumbnail_url} alt={theme.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0B0816]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
