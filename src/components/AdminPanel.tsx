@@ -8,6 +8,7 @@ import { Shield, Key, Eye, EyeOff, LogOut, MapPin, Database, Send, AlertCircle, 
 import L from 'leaflet';
 import { generateMockLeads } from '../data/mockLeads';
 import { Lead, LeadCategory } from '../types';
+import { createPortal } from 'react-dom';
 
 const SUPABASE_URL = 'https://qxqrlvzzfisvlzhyqems.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4cXJsdnp6Zmlzdmx6aHlxZW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTY2NDUsImV4cCI6MjA5NTk3MjY0NX0.bM2B3JtzcjR5RVihk3wIilbAxdtDucasWrcmpSOZ_2k';
@@ -237,28 +238,28 @@ export default function AdminPanel() {
 
       {/* Fullscreen Preview Modal */}
       {previewTheme && (
-        <div className="fixed inset-0 z-[9999] bg-[#0B0816] flex flex-col">
-          <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)] shrink-0">
-            <div className="flex items-center gap-3">
-              <Layout className="w-4 h-4 text-[#7B5EF8]" />
-              <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
-              <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
-            </div>
-            <button
-              onClick={() => setPreviewTheme(null)}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#E8E8F0] border border-[rgba(123,94,248,0.2)] rounded-xl bg-[rgba(22,16,47,0.5)] hover:bg-[#7B5EF8] hover:border-[#7B5EF8] transition-all cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" /> Close Preview
-            </button>
-          </div>
-          <iframe
-            src={previewTheme.preview_url}
-            className="flex-1 w-full border-0"
-            title={previewTheme.name}
-            sandbox="allow-scripts allow-same-origin allow-forms"
-          />
-        </div>
-      )}
+  <div className="fixed inset-0 z-[9999] bg-[#0B0816] flex flex-col">
+    <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)] shrink-0">
+      <div className="flex items-center gap-3">
+        <Layout className="w-4 h-4 text-[#7B5EF8]" />
+        <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
+        <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
+      </div>
+      <button
+        onClick={() => setPreviewTheme(null)}
+        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#E8E8F0] border border-[rgba(123,94,248,0.2)] rounded-xl bg-[rgba(22,16,47,0.5)] hover:bg-[#7B5EF8] hover:border-[#7B5EF8] transition-all cursor-pointer"
+      >
+        <X className="w-3.5 h-3.5" /> Close Preview
+      </button>
+    </div>
+    <iframe
+      src={previewTheme.preview_url}
+      className="flex-1 w-full border-0"
+      title={previewTheme.name}
+      sandbox="allow-scripts allow-same-origin allow-forms"
+    />
+  </div>
+)}
 
       {/* ========== LOGIN ========== */}
       {!isLoggedIn ? (
