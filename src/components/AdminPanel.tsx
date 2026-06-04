@@ -30,11 +30,10 @@ interface Theme {
 }
 
 interface AdminPanelProps {
-  onPreviewChange: (active: boolean) => void;
+  onPreviewOpen: (theme: { name: string; category: string; preview_url: string } | null) => void;
 }
 
-export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
-  // Auth
+export default function AdminPanel({ onPreviewOpen }: AdminPanelProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
   const [userRole, setUserRole] = useState('');
@@ -43,7 +42,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  // Admin states
   const [coords, setCoords] = useState({ lat: 24.8615, lng: 67.0543 });
   const [category, setCategory] = useState<LeadCategory>('Food & Restaurants');
   const [isSearching, setIsSearching] = useState(false);
@@ -51,32 +49,17 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
   const [webhookStatus, setWebhookStatus] = useState<'idle' | 'success' | 'failed'>('idle');
   const [webhookMessage, setWebhookMessage] = useState('');
 
-  // Theme states
   const [themes, setThemes] = useState<Theme[]>([]);
   const [themesLoading, setThemesLoading] = useState(false);
-  const [previewTheme, setPreviewTheme] = useState<Theme | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTheme, setNewTheme] = useState({ name: '', category: '', description: '', preview_url: '', thumbnail_url: '' });
   const [addingTheme, setAddingTheme] = useState(false);
 
-  // Leaflet refs
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const circleRef = useRef<L.Circle | null>(null);
 
-  // Preview helpers
-  const openPreview = (theme: Theme) => {
-    setPreviewTheme(theme);
-    onPreviewChange(true);
-  };
-
-  const closePreview = () => {
-    setPreviewTheme(null);
-    onPreviewChange(false);
-  };
-
-  // --- AUTH ---
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -108,7 +91,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
     setPasswordInput('');
     setSearchResults([]);
     setWebhookStatus('idle');
-    closePreview();
     localStorage.removeItem('velra_admin_auth');
     localStorage.removeItem('velra_admin_role');
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
@@ -124,7 +106,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
     }
   }, []);
 
-  // --- THEMES ---
   const fetchThemes = async () => {
     setThemesLoading(true);
     try {
@@ -177,7 +158,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
     fetchThemes();
   };
 
-  // --- MAP ---
   useEffect(() => {
     if (!isLoggedIn || userRole !== 'admin' || !mapContainerRef.current || mapRef.current) return;
 
@@ -210,7 +190,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
     });
 
     setTimeout(() => mapInstance.invalidateSize(), 300);
-
     return () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } };
   }, [isLoggedIn, userRole]);
 
@@ -231,11 +210,11 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
       const req = await fetch('https://webhook.velradigital.com/leads', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), mode: 'cors'
       });
-      if (req.ok) { setWebhookStatus('success'); setWebhookMessage('Dispatched successfully to API Webhook pipeline.'); }
-      else throw new Error(`Pipeline status: ${req.status}`);
+      if (req.ok) { setWebhookStatus('success'); setWebhookMessage('Dispatched successfully.'); }
+      else throw new Error(`Status: ${req.status}`);
     } catch (err: any) {
       setWebhookStatus('failed');
-      setWebhookMessage(`Simulated: Webhook logged successfully with error fallback. (${err.message}).`);
+      setWebhookMessage(`Simulated fallback. (${err.message}).`);
     } finally {
       setTimeout(() => {
         setSearchResults(generateMockLeads(category, coords.lat, coords.lng));
@@ -244,35 +223,9 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
     }
   };
 
-  // ==================== RENDER ====================
-
   return (
     <div className="min-h-screen bg-[#0B0816] text-[#E8E8F0] pt-28 pb-16 px-4 sm:px-6 lg:px-8">
 
-      {/* Fullscreen Preview */}
-      {previewTheme && (
-        <div className="fixed inset-0 z-[9999] bg-[#0B0816] flex flex-col">
-          <div className="flex items-center justify-between px-6 py-3 bg-[#0B0816] border-b border-[rgba(123,94,248,0.2)] shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-white font-display">{previewTheme.name}</span>
-              <span className="text-xs text-[#9090C0] font-mono">{previewTheme.category}</span>
-            </div>
-            <button
-              onClick={closePreview}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white border border-[rgba(123,94,248,0.3)] rounded-xl bg-[rgba(123,94,248,0.2)] hover:bg-[#7B5EF8] transition-all cursor-pointer"
-            >
-              ✕ Close Preview
-            </button>
-          </div>
-          <iframe
-            src={previewTheme.preview_url}
-            className="flex-1 w-full border-0"
-            title={previewTheme.name}
-          />
-        </div>
-      )}
-
-      {/* ========== LOGIN ========== */}
       {!isLoggedIn ? (
         <div className="max-w-md mx-auto my-12 relative animate-scaleUp">
           <div className="flex flex-col items-center mb-8 text-center select-none">
@@ -285,14 +238,11 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
 
           <div className="velra-glass-card p-8 sm:p-10 relative overflow-hidden border border-[#7B5EF8]/35 shadow-[0_24px_50px_rgba(11,8,22,0.8)]">
             <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#7B5EF8]/20 rounded-full blur-2xl pointer-events-none" />
-
             {loginError && (
               <div className="mb-6 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{loginError}</span>
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" /><span>{loginError}</span>
               </div>
             )}
-
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="block text-xs font-bold text-[#E8E8F0] uppercase tracking-wider font-mono flex items-center gap-1.5">
@@ -300,11 +250,9 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                 </label>
                 <input type="email" required placeholder="Enter your email" value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white placeholder-[#7070A0]/40 text-sm focus:border-[#7B5EF8] focus:outline-none focus:ring-1 focus:ring-[#7B5EF8]/20"
-                />
+                  className="w-full px-4 py-3 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white placeholder-[#7070A0]/40 text-sm focus:border-[#7B5EF8] focus:outline-none" />
                 <p className="text-[10px] text-[#9090C0]/50">Authorized personnel only</p>
               </div>
-
               <div className="space-y-2">
                 <label className="block text-xs font-bold text-[#E8E8F0] uppercase tracking-wider font-mono flex items-center gap-1.5">
                   <Key className="w-3.5 h-3.5 text-[#00F5C8]" /> Password
@@ -312,16 +260,14 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                 <div className="relative">
                   <input type={showPassword ? 'text' : 'password'} required placeholder="Enter password" value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
-                    className="w-full pl-4 pr-12 py-3 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white placeholder-[#7070A0]/40 text-sm focus:border-[#7B5EF8] focus:outline-none focus:ring-1 focus:ring-[#7B5EF8]/20 font-mono"
-                  />
+                    className="w-full pl-4 pr-12 py-3 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white placeholder-[#7070A0]/40 text-sm focus:border-[#7B5EF8] focus:outline-none font-mono" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9090C0] hover:text-white transition-colors cursor-pointer">
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9090C0] hover:text-white cursor-pointer">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 <p className="text-[10px] text-[#9090C0]/50 font-mono">Authorized personnel only</p>
               </div>
-
               <button type="submit"
                 className="w-full py-3.5 rounded-xl font-bold bg-[#7B5EF8] hover:bg-[#8B70FA] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg font-sans">
                 Access Console
@@ -342,9 +288,7 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                   {userRole === 'admin' ? 'Admin Control Node' : 'BDM Console'}
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase border ${
-                  userRole === 'admin'
-                    ? 'bg-[#7B5EF8]/10 text-[#7B5EF8] border-[#7B5EF8]/30'
-                    : 'bg-[#00F5C8]/10 text-[#00F5C8] border-[#00F5C8]/30'
+                  userRole === 'admin' ? 'bg-[#7B5EF8]/10 text-[#7B5EF8] border-[#7B5EF8]/30' : 'bg-[#00F5C8]/10 text-[#00F5C8] border-[#00F5C8]/30'
                 }`}>{userRole}</span>
               </div>
               <h2 className="text-2xl font-display font-extrabold text-white mt-1">
@@ -358,7 +302,7 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
             </button>
           </div>
 
-          {/* ========== ADMIN VIEW ========== */}
+          {/* ── ADMIN VIEW ── */}
           {userRole === 'admin' && (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -383,24 +327,20 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                           <option value="Other">Other</option>
                         </select>
                       </div>
-
                       <div className="grid grid-cols-2 gap-3 pt-1">
                         <div className="space-y-1">
                           <span className="text-[10px] font-bold tracking-wider text-[#9090C0] uppercase font-mono">UTM Latitude</span>
                           <div className="px-3 py-2 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl font-mono text-xs text-[#E8E8F0] flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 text-[#7B5EF8] shrink-0" />
-                            <span>{coords.lat.toFixed(5)}</span>
+                            <MapPin className="w-3.5 h-3.5 text-[#7B5EF8] shrink-0" /><span>{coords.lat.toFixed(5)}</span>
                           </div>
                         </div>
                         <div className="space-y-1">
                           <span className="text-[10px] font-bold tracking-wider text-[#9090C0] uppercase font-mono">UTM Longitude</span>
                           <div className="px-3 py-2 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl font-mono text-xs text-[#E8E8F0] flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 text-[#00F5C8] shrink-0" />
-                            <span>{coords.lng.toFixed(5)}</span>
+                            <MapPin className="w-3.5 h-3.5 text-[#00F5C8] shrink-0" /><span>{coords.lng.toFixed(5)}</span>
                           </div>
                         </div>
                       </div>
-
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
                           <span className="text-xs font-bold font-mono uppercase text-[#9090C0]">Fixed Radial Sweep</span>
@@ -410,7 +350,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                           <div className="w-1/3 h-full bg-gradient-to-r from-[#7B5EF8] to-[#00F5C8] rounded-full" />
                         </div>
                       </div>
-
                       <div className="space-y-1.5 pt-2">
                         <span className="text-[10px] font-bold tracking-wider text-[#9090C0] uppercase font-mono">Key Karachi Presets:</span>
                         <div className="flex flex-wrap gap-1.5">
@@ -428,18 +367,12 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                           ))}
                         </div>
                       </div>
-
                       <button onClick={handleFindBusinesses} disabled={isSearching}
                         className="w-full py-4 rounded-xl font-bold bg-[#7B5EF8] hover:bg-[#8B70FA] text-white flex items-center justify-center gap-2 transition-all cursor-pointer font-display select-none mt-6 outline-none">
-                        {isSearching ? (
-                          <><div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />Scanning Terrain...</>
-                        ) : (
-                          <><Database className="w-4 h-4" />Find Businesses</>
-                        )}
+                        {isSearching ? <><div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />Scanning...</> : <><Database className="w-4 h-4" />Find Businesses</>}
                       </button>
                     </div>
                   </div>
-
                   {webhookStatus !== 'idle' && (
                     <div className="p-4 rounded-2xl border bg-indigo-500/10 border-indigo-500/30 text-[#00F5C8]">
                       <div className="flex items-start gap-3">
@@ -452,7 +385,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                     </div>
                   )}
                 </div>
-
                 <div className="lg:col-span-2 space-y-6">
                   <div className="velra-glass-card p-4 space-y-3 relative overflow-hidden">
                     <div className="flex justify-between items-center px-2">
@@ -474,12 +406,9 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                     <p className="text-xs text-[#9090C0] mt-0.5">Results near: {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}</p>
                   </div>
                   {searchResults.length > 0 && (
-                    <span className="px-2.5 py-1 rounded bg-[#00F5C8]/10 text-[#00F5C8] font-mono text-xs border border-[#00F5C8]/35">
-                      Found: {searchResults.length} Leads
-                    </span>
+                    <span className="px-2.5 py-1 rounded bg-[#00F5C8]/10 text-[#00F5C8] font-mono text-xs border border-[#00F5C8]/35">Found: {searchResults.length} Leads</span>
                   )}
                 </div>
-
                 {searchResults.length === 0 ? (
                   <div className="text-center py-16 px-4 bg-[#0B0816]/50 border border-dashed border-[rgba(123,94,248,0.25)] rounded-2xl flex flex-col items-center">
                     <Database className="w-12 h-12 text-[#9090C0] mb-4 stroke-1" />
@@ -491,13 +420,9 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
                         <tr className="border-b border-[rgba(123,94,248,0.25)] text-[#9090C0] font-mono uppercase font-bold tracking-wider">
-                          <th className="py-4 px-4">Business Name</th>
-                          <th className="py-4 px-4">Category</th>
-                          <th className="py-4 px-4">Address</th>
-                          <th className="py-4 px-4">Phone</th>
-                          <th className="py-4 px-4">Email</th>
-                          <th className="py-4 px-4">Rating</th>
-                          <th className="py-4 px-4">Status</th>
+                          <th className="py-4 px-4">Business Name</th><th className="py-4 px-4">Category</th>
+                          <th className="py-4 px-4">Address</th><th className="py-4 px-4">Phone</th>
+                          <th className="py-4 px-4">Email</th><th className="py-4 px-4">Rating</th><th className="py-4 px-4">Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -537,7 +462,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                     <Plus className="w-3.5 h-3.5" /> Add Theme
                   </button>
                 </div>
-
                 {showAddForm && (
                   <form onSubmit={handleAddTheme} className="mb-6 p-5 rounded-2xl border border-[rgba(123,94,248,0.25)] bg-[rgba(22,16,47,0.3)] space-y-4">
                     <h4 className="text-sm font-bold text-white font-display">New Theme</h4>
@@ -553,18 +477,16 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                           <input type="text" required placeholder={field.placeholder}
                             value={(newTheme as any)[field.key]}
                             onChange={(e) => setNewTheme({ ...newTheme, [field.key]: e.target.value })}
-                            className="w-full px-3 py-2 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white text-xs focus:border-[#7B5EF8] focus:outline-none"
-                          />
+                            className="w-full px-3 py-2 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white text-xs focus:border-[#7B5EF8] focus:outline-none" />
                         </div>
                       ))}
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase font-mono text-[#9090C0]">Description</label>
-                      <input type="text" required placeholder="Brief description of this theme"
+                      <input type="text" required placeholder="Brief description"
                         value={newTheme.description}
                         onChange={(e) => setNewTheme({ ...newTheme, description: e.target.value })}
-                        className="w-full px-3 py-2 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white text-xs focus:border-[#7B5EF8] focus:outline-none"
-                      />
+                        className="w-full px-3 py-2 bg-[#0B0816] border border-[rgba(123,94,248,0.2)] rounded-xl text-white text-xs focus:border-[#7B5EF8] focus:outline-none" />
                     </div>
                     <div className="flex gap-3">
                       <button type="submit" disabled={addingTheme}
@@ -578,7 +500,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                     </div>
                   </form>
                 )}
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {themesLoading ? (
                     <p className="text-xs text-[#9090C0] font-mono col-span-3">Loading themes...</p>
@@ -597,7 +518,7 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                           <span className="text-[10px] text-[#00F5C8] font-mono border border-[#00F5C8]/30 px-2 py-0.5 rounded-full">{theme.category}</span>
                         </div>
                         <p className="text-xs text-[#9090C0] leading-relaxed">{theme.description}</p>
-                        <button onClick={() => openPreview(theme)}
+                        <button onClick={() => onPreviewOpen(theme)}
                           className="w-full py-2 mt-1 text-xs font-bold text-white bg-[#7B5EF8]/20 hover:bg-[#7B5EF8]/40 border border-[#7B5EF8]/30 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer">
                           <Globe className="w-3.5 h-3.5" /> Preview Site
                         </button>
@@ -609,7 +530,7 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
             </>
           )}
 
-          {/* ========== BDM VIEW ========== */}
+          {/* ── BDM VIEW ── */}
           {userRole === 'bdm' && (
             <div className="space-y-6">
               <div className="text-center max-w-2xl mx-auto">
@@ -617,7 +538,6 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                 <h3 className="mt-2 text-3xl font-display font-extrabold text-white">Client Pitch Gallery</h3>
                 <p className="mt-2 text-sm text-[#9090C0]">Select a specimen to preview fullscreen and pitch to your client.</p>
               </div>
-
               {themesLoading ? (
                 <p className="text-center text-xs text-[#9090C0] font-mono py-12">Loading specimens...</p>
               ) : (
@@ -625,7 +545,7 @@ export default function AdminPanel({ onPreviewChange }: AdminPanelProps) {
                   {themes.map((theme) => (
                     <div key={theme.id}
                       className="border border-[rgba(123,94,248,0.2)] rounded-2xl overflow-hidden bg-[rgba(22,16,47,0.3)] hover:border-[#7B5EF8]/60 hover:shadow-[0_12px_40px_rgba(123,94,248,0.2)] transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
-                      onClick={() => openPreview(theme)}>
+                      onClick={() => onPreviewOpen(theme)}>
                       <div className="relative overflow-hidden">
                         <img src={theme.thumbnail_url} alt={theme.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0B0816]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">

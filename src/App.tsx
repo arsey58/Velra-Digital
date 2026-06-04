@@ -15,11 +15,17 @@ import AIStudents from './components/AIStudents';
 import AdminPanel from './components/AdminPanel';
 import GlobalCanvas from './components/GlobalCanvas';
 
-export default function App() {
-  const [currentView, setCurrentView] = useState('public'); // views: 'public', 'pricing', 'ai-students', 'admin'
-  const [selectedPlanForContact, setSelectedPlanForContact] = useState('');
+interface PreviewTheme {
+  name: string;
+  category: string;
+  preview_url: string;
+}
 
-  // Listen to browser hash coordinates to provide direct link bookmarking
+export default function App() {
+  const [currentView, setCurrentView] = useState('public');
+  const [selectedPlanForContact, setSelectedPlanForContact] = useState('');
+  const [previewTheme, setPreviewTheme] = useState<PreviewTheme | null>(null);
+
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash || '#home';
@@ -36,12 +42,9 @@ export default function App() {
         setCurrentView('public');
         const elementId = hash.substring(1);
         if (elementId && elementId !== 'home') {
-          // slight delay to wait for view rendering to finalize before scroll
           setTimeout(() => {
             const el = document.getElementById(elementId);
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }, 150);
         }
       }
@@ -64,26 +67,83 @@ export default function App() {
     }
   };
 
-  // Callback to support choosing a price tier and auto scrolling down to populate the contact selection dropdown!
- const handleSelectPlan = (planName: string) => {
-  setSelectedPlanForContact(planName);
-  setCurrentView('public');
-  window.history.replaceState(null, '', ' ');
-  setTimeout(() => {
-    const el = document.getElementById('contact');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 500);
-};
+  const handleSelectPlan = (planName: string) => {
+    setSelectedPlanForContact(planName);
+    setCurrentView('public');
+    window.history.replaceState(null, '', ' ');
+    setTimeout(() => {
+      const el = document.getElementById('contact');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 500);
+  };
 
   return (
     <div className="min-h-screen bg-[#0B0816] text-[#E8E8F0] font-sans flex flex-col justify-between selection:bg-[#7B5EF8]/35 selection:text-white relative">
-      {/* Global Canvas particle animation background */}
-      <GlobalCanvas />
 
-      {/* 1. Header Navigation */}
+      {/* ── FULLSCREEN PREVIEW OVERLAY (renders above everything) ── */}
+      {previewTheme && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 999999,
+            background: '#0B0816',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Preview top bar */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 24px',
+              background: '#0B0816',
+              borderBottom: '1px solid rgba(123,94,248,0.25)',
+              flexShrink: 0,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>
+                {previewTheme.name}
+              </span>
+              <span style={{ color: '#9090C0', fontSize: '11px' }}>
+                {previewTheme.category}
+              </span>
+            </div>
+            <button
+              onClick={() => setPreviewTheme(null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 20px',
+                background: 'rgba(123,94,248,0.2)',
+                border: '1px solid rgba(123,94,248,0.4)',
+                borderRadius: '12px',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+              }}
+            >
+              ✕ Close Preview
+            </button>
+          </div>
+
+          {/* iframe */}
+          <iframe
+            src={previewTheme.preview_url}
+            style={{ flex: 1, width: '100%', border: 'none' }}
+            title={previewTheme.name}
+          />
+        </div>
+      )}
+
+      <GlobalCanvas />
       <Navbar currentView={currentView} onNavigate={handleNavigate} />
 
-      {/* 2. Main Content Screens with animated entries */}
       <main className="flex-grow z-10 relative">
         <AnimatePresence mode="wait">
           {currentView === 'public' && (
@@ -94,17 +154,15 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
             >
-              {/* SECTION 1 — PUBLIC LANDING PAGE */}
-              <Hero 
+              <Hero
                 onGetStarted={() => {
                   const el = document.getElementById('contact');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }} 
+                }}
                 onSeeHowWeWork={() => {
                   const el = document.getElementById('how-we-work');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }} 
-                
+                }}
               />
               <HowWeWork />
               <Services />
@@ -121,7 +179,6 @@ export default function App() {
               transition={{ duration: 0.4 }}
               className="pt-24 lg:pt-32"
             >
-              {/* SECTION — STANDALONE PRICING PAGE */}
               <Pricing onSelectPlan={handleSelectPlan} />
             </motion.div>
           )}
@@ -134,7 +191,6 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.4 }}
             >
-              {/* SECTION 2 — WELFARE / EDUCATION PAGE */}
               <AIStudents />
             </motion.div>
           )}
@@ -147,14 +203,12 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.35 }}
             >
-              {/* SECTION 3 — ADMIN DASHBOARD PROSPECTING PLATFORM */}
-              <AdminPanel />
+              <AdminPanel onPreviewOpen={setPreviewTheme} />
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      {/* 3. Footer Block exactly as requested */}
       <footer className="border-t border-[rgba(123,94,248,0.2)] bg-[#0B0816] py-8 px-4 text-center select-none">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -163,11 +217,9 @@ export default function App() {
             </div>
             <span className="text-sm font-display font-extrabold text-white">Velra Digital</span>
           </div>
-          
           <span className="text-xs text-[#9090C0] font-sans font-medium hover:text-[#E8E8F0] transition-colors">
             Velra Digital · Build the Future. Today. · Karachi, Pakistan · 2025
           </span>
-
           <div className="flex gap-4 text-[10px] text-[#9090C0] font-mono">
             <span>v1.4.2 PROD</span>
           </div>
